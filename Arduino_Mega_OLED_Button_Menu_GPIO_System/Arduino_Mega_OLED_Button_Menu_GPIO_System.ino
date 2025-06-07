@@ -54,10 +54,12 @@ void setup() {
   // the library initializes this with an Adafruit splash screen.
   display.display();
   delay(2000); // Pause for 2 seconds
-
+  
   // Clear the buffer
   display.clearDisplay();
 
+  testmenu();
+  /*
   // Draw a single pixel in white
   display.drawPixel(10, 10, WHITE);
 
@@ -101,11 +103,49 @@ void setup() {
   delay(1000);
   display.invertDisplay(false);
   delay(1000);
-
+  
+  */
+  
   testanimate(logo_bmp, LOGO_WIDTH, LOGO_HEIGHT); // Animate bitmaps
 }
 
 void loop() {
+}
+
+void testmenu() {
+  int16_t i;
+  Serial.println(display.height());
+  Serial.println(display.width());
+  display.clearDisplay();
+  for(i=0; i<display.height(); i++){
+    
+    display.drawLine(0,i, display.width()-1, i, WHITE);
+    display.display();
+    if(i%2 == 1){
+      display.invertDisplay(true);
+      
+    } else{
+      display.invertDisplay(false);
+    }
+  }
+  display.invertDisplay(false);
+  display.clearDisplay();
+  display.drawRoundRect(10, 10, display.width()-20, 30, 5, WHITE);
+  display.display();
+  delay(3000);
+  int y = -1;
+  char text[] = "Hello World! Starting program...";
+  for(i=0; i<strlen(text); i++){
+    if((((i*6)%(display.width()-30)) < 6)){
+      y++;
+    }
+    display.drawChar(15+((6*i)%(display.width()-30)), 15+(10*y), text[i], WHITE, BLACK, 1);
+    display.display();
+    delay(400);
+  }
+  
+  delay(3000);
+  
 }
 
 void testdrawline() {
