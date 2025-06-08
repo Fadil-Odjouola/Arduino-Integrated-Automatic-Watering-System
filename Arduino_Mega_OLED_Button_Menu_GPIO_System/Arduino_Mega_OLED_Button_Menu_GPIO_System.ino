@@ -54,8 +54,8 @@ void textBubble(int16_t x, int16_t y, int len, char text[], int16_t scale, int16
                                           render the bottom of the border at the bottom of the screen */
                                           
   // Space between text inside and the border
-  int paddingx = 3; 
-  int paddingy = 3; 
+  int paddingx = 5; 
+  int paddingy = 5; 
   
   int innerLBX = lowerBoundx + paddingx; // Just like upperBoundx, lowerBoundy, etc. Except for the text itself
   int innerUBX = upperBoundx - paddingx; 
@@ -89,7 +89,7 @@ void textBubble(int16_t x, int16_t y, int len, char text[], int16_t scale, int16
   }
 
   // The bottom y coordinate of the text bubble border is the total layers multiplied by the pixel size per layer plus padding and starting y coordinate
-  lowerBoundy = ((ay+iy)*totCharSpace) + paddingy + y;
+  lowerBoundy = ((ay+iy)*totCharSpace) + (paddingy*2) + y;
 
   // width and height of the text bubble border is the coordinate of the upper part minus the coordinate of the lower part
   int bubbleWidth = upperBoundx - lowerBoundx;  
