@@ -41,6 +41,68 @@ static const unsigned char PROGMEM logo_bmp[] =
   B01110000, B01110000,
   B00000000, B00110000 };
 
+void textBubble(int16_t x, int16_t y, int len, char text[], int16_t scale, int16_t color, int16_t bg, int16_t outlineColor /*, bool alignCenter, bool fillRect*/) {
+  int16_t i;
+
+  int charSizex = 5 *  scale;
+  int charSizey = 7 * scale;
+
+  int lowerBoundx = x;                 // Start of the text bubble border along x axis
+  int upperBoundx = len + x;           // End of the text bubble border along x axis
+  int upperBoundy = y;                 // Start of the text bubble border along y axis
+  int lowerBoundy = display.height();  /* End of the text bubble border along y axis, display.height is used a placeholder and if left unchanged will
+                                          render the bottom of the border at the bottom of the screen */
+                                          
+  // Space between text inside and the border
+  int paddingx = 3; 
+  int paddingy = 3; 
+  
+  int innerLBX = lowerBoundx + paddingx; // Just like upperBoundx, lowerBoundy, etc. Except for the text itself
+  int innerUBX = upperBoundx - paddingx; 
+  int innerUBY = upperBoundy + paddingy;
+  
+  int textBoxSpace = innerUBX - innerLBX;     // Space the text has availible in a given layer
+  int charPad = 1;                            // Spacing inbetween each character in series
+  int charSpace = 2;                          // Spacing inbetween each layer of characters
+  int totCharSpace = charSpace + charSizey;   // Pixel size per increment for character height + padding inbetween layers
+  int totCharLen = charSizex + charPad;       // Pixel size per increment for character length + padding inbetween characters
+
+  int iy = -1; // Count for how many layer there are
+  int ay = 1; // Count for if there's an impartial layer
+
+  // Loop for drawing text onto screen
+  display.clearDisplay();
+  for(i=0; i<strlen(text); i++){
+    ay = 1; // When writing character in a layer, the partial layer count is set to 1
+    
+    // Check if pixel sized increment overlaps the border, add 1 to layer count and sets partial layer count to zero
+    if((((i*totCharLen)%(textBoxSpace)) < totCharLen)){
+      iy++;
+      ay = 0;
+    }
+
+    // Draw chars from the start of the test coordinate plus the pixel sized increment coordinates. Same for Y except pixel size increment coordinate is calculated using layer count
+    // Ofcourse, each increment runs thrugh each character in the text array, each one draws that character at its index
+    display.drawChar(innerLBX + ((i*totCharLen)%(textBoxSpace)) , innerUBY + (totCharSpace*iy), text[i], color, bg, scale);
+    display.display();
+    delay(100);
+  }
+
+  // The bottom y coordinate of the text bubble border is the total layers multiplied by the pixel size per layer plus padding and starting y coordinate
+  lowerBoundy = ((ay+iy)*totCharSpace) + paddingy + y;
+
+  // width and height of the text bubble border is the coordinate of the upper part minus the coordinate of the lower part
+  int bubbleWidth = upperBoundx - lowerBoundx;  
+  int bubbleHeight = lowerBoundy - upperBoundy;
+
+  // a round rectangle aka text bubble border is the x,y coordinates(top left corner) and the calculated width and height
+  display.drawRoundRect(x, y, bubbleWidth, bubbleHeight, 5, outlineColor);
+  display.display();
+  delay(3000);
+  
+}
+
+
 void setup() {
   Serial.begin(115200);
 
@@ -59,6 +121,9 @@ void setup() {
   display.clearDisplay();
 
   testmenu();
+
+  textBubble(2,2,100, "Hello World, what function do you want to run today?", 1, WHITE, BLACK, WHITE);
+  
   /*
   // Draw a single pixel in white
   display.drawPixel(10, 10, WHITE);
@@ -111,6 +176,10 @@ void setup() {
 
 void loop() {
 }
+
+char message[] = "Hello World! Starting program...";
+
+
 
 void testmenu() {
   int16_t i;
