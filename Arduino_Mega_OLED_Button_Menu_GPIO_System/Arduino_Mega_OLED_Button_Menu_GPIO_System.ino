@@ -12,6 +12,8 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+//#define ACTION_BUTTON D2
+
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
@@ -102,6 +104,12 @@ void textBubble(int16_t x, int16_t y, int len, char text[], int16_t scale, int16
   
 }
 
+bool invert = false;
+void invertScreen(){
+  invert = invert ? false : true;
+  display.invertDisplay(invert);
+  display.display();
+}
 
 void setup() {
   Serial.begin(115200);
@@ -112,6 +120,10 @@ void setup() {
     for(;;); // Don't proceed, loop forever
   }
 
+  // Attach a digital innterupt pin that calls a screen invert function ISR
+  pinMode(2, INPUT);
+  attachInterrupt(digitalPinToInterrupt(2), invertScreen, RISING);
+  
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
   display.display();
