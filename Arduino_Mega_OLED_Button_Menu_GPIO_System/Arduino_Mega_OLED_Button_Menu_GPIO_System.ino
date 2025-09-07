@@ -43,6 +43,72 @@ static const unsigned char PROGMEM logo_bmp[] =
   B01110000, B01110000,
   B00000000, B00110000 };
 
+
+
+
+
+class MSTRsensor {
+  int pin;
+  int value;
+  int u_threshold;
+  int l_threshold;
+  String status;
+  
+public:
+  MSTRsensor(int p) : pin(p){
+    pinMode(pin, INPUT);
+    updateValue();
+    Serial.println("New Moisture Sensor at pin - " + String(pin));
+  }
+  int read(){
+    value = analogRead(pin);
+    return value;
+  }
+  
+  void setThreshold(int l, int u){
+    if (l>u){
+      Serial.println("Moisture Sensor parameters must be lowerthreshold, upperthreshold");
+      return;
+      }
+    l_threshold = l;
+    u_threshold = u;
+  }
+  bool isInRange(){
+    if(value < l_threshold) {
+      Serial.println("Moisture sensor is TOO DRY");
+      return false;
+    }
+    if(value > u_threshold) {
+      Serial.println("Moisture sensor is TOO MOIST");
+      return false;
+    }
+    return true;
+  }
+  void updateStatus(){
+    if(value < l_threshold) {
+        status = "TOO DRY";
+    }
+    elseif(value > u_threshold) {
+        status = "TOO MOIST";
+    } else{ status = "OK"; }
+  }
+  void printStats(){
+    String message = 
+    "Pin - " + String(pin) + "\n" + 
+    "Moisture - " + String(value) + "\n" + 
+    "Dry Threshold - " + String(l_threshold) + "\n" + 
+    "Moist Threshold - " + String(u_threshold) + "\n" + 
+    "Status - " + status;
+    Serial.println(message);
+  }
+};
+
+
+
+
+
+  
+
 void textBubble(int16_t x, int16_t y, int len, char text[], int16_t scale, int16_t color, int16_t bg, int16_t outlineColor /*, bool alignCenter, bool fillRect*/) {
   int16_t i;
 
@@ -104,12 +170,6 @@ void textBubble(int16_t x, int16_t y, int len, char text[], int16_t scale, int16
   
 }
 
-bool invert = false;
-void invertScreen(){
-  invert = invert ? false : true;
-  display.invertDisplay(invert);
-  display.display();
-}
 
 void setup() {
   Serial.begin(115200);
@@ -136,45 +196,6 @@ void setup() {
 
   textBubble(2,2,100, "Hello World, what function do you want to run today?", 1, WHITE, BLACK, WHITE);
   
-  /*
-  // Draw a single pixel in white
-  display.drawPixel(10, 10, WHITE);
-
-  // Show the display buffer on the screen. You MUST call display() after
-  // drawing commands to make them visible on screen!
-  display.display();
-  delay(2000);
-  // display.display() is NOT necessary after every single drawing command,
-  // unless that's what you want...rather, you can batch up a bunch of
-  // drawing operations and then update the screen all at once by calling
-  // display.display(). These examples demonstrate both approaches...
-
-  testdrawline();      // Draw many lines
-
-  testdrawrect();      // Draw rectangles (outlines)
-
-  testfillrect();      // Draw rectangles (filled)
-
-  testdrawcircle();    // Draw circles (outlines)
-
-  testfillcircle();    // Draw circles (filled)
-
-  testdrawroundrect(); // Draw rounded rectangles (outlines)
-
-  testfillroundrect(); // Draw rounded rectangles (filled)
-
-  testdrawtriangle();  // Draw triangles (outlines)
-
-  testfilltriangle();  // Draw triangles (filled)
-
-  testdrawchar();      // Draw characters of the default font
-
-  testdrawstyles();    // Draw 'stylized' characters
-
-  testscrolltext();    // Draw scrolling text
-
-  testdrawbitmap();    // Draw a small bitmap image
-
   // Invert and restore display, pausing in-between
   display.invertDisplay(true);
   delay(1000);
@@ -182,11 +203,11 @@ void setup() {
   delay(1000);
   
   */
-  
-  testanimate(logo_bmp, LOGO_WIDTH, LOGO_HEIGHT); // Animate bitmaps
 }
 
 void loop() {
+  // Draws the main menu
+  display.
 }
 
 char message[] = "Hello World! Starting program...";
@@ -417,7 +438,7 @@ void testdrawchar(void) {
   delay(2000);
 }
 
-void testdrawstyles(void) {
+void testdrawstyles(void) {d
   display.clearDisplay();
 
   display.setTextSize(1);             // Normal 1:1 pixel scale
@@ -472,49 +493,4 @@ void testdrawbitmap(void) {
     logo_bmp, LOGO_WIDTH, LOGO_HEIGHT, 1);
   display.display();
   delay(1000);
-}
-
-#define XPOS   0 // Indexes into the 'icons' array in function below
-#define YPOS   1
-#define DELTAY 2
-
-void testanimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
-  int8_t f, icons[NUMFLAKES][3];
-
-  // Initialize 'snowflake' positions
-  for(f=0; f< NUMFLAKES; f++) {
-    icons[f][XPOS]   = random(1 - LOGO_WIDTH, display.width());
-    icons[f][YPOS]   = -LOGO_HEIGHT;
-    icons[f][DELTAY] = random(1, 6);
-    Serial.print(F("x: "));
-    Serial.print(icons[f][XPOS], DEC);
-    Serial.print(F(" y: "));
-    Serial.print(icons[f][YPOS], DEC);
-    Serial.print(F(" dy: "));
-    Serial.println(icons[f][DELTAY], DEC);
-  }
-
-  for(;;) { // Loop forever...
-    display.clearDisplay(); // Clear the display buffer
-
-    // Draw each snowflake:
-    for(f=0; f< NUMFLAKES; f++) {
-      display.drawBitmap(icons[f][XPOS], icons[f][YPOS], bitmap, w, h, WHITE);
-    }
-
-    display.display(); // Show the display buffer on the screen
-    delay(200);        // Pause for 1/10 second
-
-    // Then update coordinates of each flake...
-    for(f=0; f< NUMFLAKES; f++) {
-      icons[f][YPOS] += icons[f][DELTAY];
-      // If snowflake is off the bottom of the screen...
-      if (icons[f][YPOS] >= display.height()) {
-        // Reinitialize to a random position, just off the top
-        icons[f][XPOS]   = random(1 - LOGO_WIDTH, display.width());
-        icons[f][YPOS]   = -LOGO_HEIGHT;
-        icons[f][DELTAY] = random(1, 6);
-      }
-    }
-  }
 }
