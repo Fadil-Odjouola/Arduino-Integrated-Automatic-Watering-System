@@ -17,6 +17,12 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
+#define UP_B 
+#define DOWN_B
+#define ACTION_B
+#define RETURN_B
+
+
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -43,7 +49,7 @@ static const unsigned char PROGMEM logo_bmp[] =
   B01110000, B01110000,
   B00000000, B00110000 };
 
-
+int ledPin = 13;
 
 
 
@@ -102,6 +108,77 @@ public:
     Serial.println(message);
   }
 };
+
+
+
+
+
+
+
+
+void LEDblink (int* p){
+
+  while()
+  // Initilize LED and loops blinking
+  pinMode(p, OUTPUT);
+  digitalWrite(p, HIGH);
+  delay(200);
+  digitalWrite(p,LOW);
+  delay(200);
+}
+void displayCenteredText(String message) {
+  display.clear();
+
+  int16_t x1, y1;
+  uint16_t w, h;
+
+  // Measure the text dimensions
+  display.getTextBounds(message.c_str(), 0, 0, &x1, &y1, &w, &h);
+
+  // Calculate centered position
+  int16_t x = (SCREEN_WIDTH - w) / 2;
+  int16_t y = (SCREENHEIGHT - h) / 2;
+
+  display.setCursor(x, y);
+  display.print(message);
+}
+
+struct MenuItem {
+  String label;
+  void (*action)();
+  MenuItem* submenu;
+}
+
+MenuItem mainMenu[] = 
+{"Blink LED", LEDblink, &null},
+{"Placeholder", displayPlaceholder(), &null},
+{"Placeholder", displayCenteredText("Placeholder"), &null},
+{"Placeholder", displayCenteredText("Placeholder"), &null};
+
+
+
+
+
+// Handles buttons presses while in menu and executables
+void handleInput(){
+}
+
+
+
+
+// Handles menu logic, settings, and outputs
+void updateStates(){}
+
+
+
+
+
+
+// Handles graphics on screen like menus and executables
+void updateDisplay(){
+  
+}
+
 
 
 
@@ -180,9 +257,12 @@ void setup() {
     for(;;); // Don't proceed, loop forever
   }
 
-  // Attach a digital innterupt pin that calls a screen invert function ISR
-  pinMode(2, INPUT);
-  attachInterrupt(digitalPinToInterrupt(2), invertScreen, RISING);
+  pinmode(UP_B, INPUT);
+  pinmode(DOWN_B, INPUT);
+  pinmode(ACTION_B, INPUT);
+  pinmode(RETURN_B, INPUT);
+
+
   
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
@@ -195,19 +275,15 @@ void setup() {
   testmenu();
 
   textBubble(2,2,100, "Hello World, what function do you want to run today?", 1, WHITE, BLACK, WHITE);
-  
-  // Invert and restore display, pausing in-between
-  display.invertDisplay(true);
-  delay(1000);
-  display.invertDisplay(false);
-  delay(1000);
-  
   */
 }
 
 void loop() {
-  // Draws the main menu
-  display.
+
+  handleinput(); // Stores and handles key inputs
+  updateStates(); 
+  updateDisplay();
+  
 }
 
 char message[] = "Hello World! Starting program...";
