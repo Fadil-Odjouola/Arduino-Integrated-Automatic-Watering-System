@@ -36,7 +36,7 @@ is completed with a list of possible kits that cover most electronics required f
 **Parts List <br> (Friday, November 21, 2025)**  
 is completed with a BOM table containing the characteristics of each part  
   
-**Circui Design <br> (Tuesday, November 25, 2025)**  
+**Circuit Design <br> (Tuesday, November 25, 2025)**  
 is completed with a Drawing of a circuit schematic or a picture of the Sensors,MicroController, and PowerSupply put together on a bread/protoboard  
   
 **Programming and Testing <br> (Friday, December 5, 2025)**  
